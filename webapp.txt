@@ -1,0 +1,259 @@
+
+Create a Web-Based Order Dashboard with Payment Status
+
+# Overview
+Develop a web-based order dashboard using PHP, Bootstrap, and MySql. The dashboard will include a scrollable table according to scrren size for displaying order details, an order creation page with payment status and amount calculations, and database integration to store and manage orders.
+
+# Key Features
+
+1. Dashboard Main Page (`index.php`)
+   - Table of Orders:
+     - Display order details in a table format with the following columns:
+       - Order ID
+       - Customer Name
+       - Shipping Address
+       - Contact Information
+       - Items Purchased
+       - Price
+       - Payment Method
+       - Payment Status
+       - Special Instructions
+       - Created At
+     - Implement a scrollable table to handle large datasets effectively.
+   - Filtering and Sorting:
+     - Allow filtering by payment status (e.g., Unpaid, Paid, Partial Paid).
+     - Enable filtering based on date ranges such as Today, Yesterday, Last 7 Days, Last 30 Days, Last 90 Days, Last 365 Days.
+     - Include sorting options for each column (e.g., ascending, descending).
+   - Menu Options:
+     - Create Order: Link to the create order page.
+     - Export to Excel: Option to export the order data to an Excel file.
+     - Delete Orders: Option to delete selected orders.
+   - Bulk Actions:
+     - Print Selected Orders: Option to print selected orders.
+     - Delete Selected Orders: Option to delete selected orders.
+
+2. Create Order Page (`create_order.php`)
+   - Form Fields:
+     - Full Name: Input field for the customer’s full name.
+     - Shipping Address: Textarea for the customer’s shipping address.
+     - Contact Information: Input field for the customer’s contact information.
+     - Items Purchased: Textarea for listing items purchased.
+     - Price: Input field for the total price.
+     - Payment Method: Dropdown to select payment method (e.g., COD, Online).
+     - Payment Status: Dropdown to select payment status (e.g., Unpaid, Paid, Partial Paid).
+     - Paid Amount: Input field for the amount that has been paid (visible only if Payment Status is Partial Paid).
+     - Remaining Amount: Calculated field displaying the amount remaining (visible only if Payment Status is Partial Paid).
+     - Special Instructions: Textarea for any special instructions.
+   - Order ID Generation:
+     - Automatically generate an Order ID in the format YYMMDDXXXX (e.g., 2409070001), where the number increases sequentially based on the current date.
+   - Amount Calculation:
+     - Paid Amount: Input field to enter the amount paid.
+     - Remaining Amount: Calculate as `Price - Paid Amount` if the payment status is Partial Paid.
+   - Submission:
+     - On form submission, validate and calculate the amount remaining based on the payment status.
+     - Insert the order details into the database.
+     - Redirect to the dashboard or show a success message.
+
+3. Database Integration
+   - Database Connection:
+     - Connect to the Mysql database using PHP.
+   - Database Tables:
+     - Admin Table:
+       - Columns: `id`, `name`, `email`, `password`, `username`
+       - Automatically generate username based on the admin’s full name (e.g., John Doe -> johndoe).
+     - Customer Table:
+       - Columns: `id`, `full_name`, `shipping_address`, `contact_information`, `order_id`, `items_purchased`, `price`, `payment_method`, `payment_status`, `paid_amount`, `remaining_amount`, `special_instructions`, `created_at`
+       - Automatically generate Order ID in the format YYMMDDXXX.
+       - Calculate and store `remaining_amount` based on `price` and `paid_amount` if `payment_status` is Partial Paid.
+   - CRUD Operations:
+     - Create: Add new orders to the database from the create order page.
+     - Read: Fetch and display orders on the dashboard.
+     - Update: Update order details if necessary.
+     - Delete: Remove selected orders from the database.
+
+4. Bootstrap Integration
+   - Table Styling:
+     - Use Bootstrap classes to style the table and make it responsive.
+     - Implement scrollable functionality for the table.
+   - Form Styling:
+     - Use Bootstrap form components for a consistent look and feel on the create order page.
+   - Buttons and Alerts:
+     - Use Bootstrap buttons for actions (e.g., Create Order, Export to Excel, Print).
+     - Implement Bootstrap alerts for success or error messages.
+
+5. User Experience
+   - Scrollable Table:
+     - Ensure the table is scrollable to handle large datasets, with fixed headers if necessary.
+   - Form Validation:
+     - Implement client-side and server-side validation for the create order form.
+   - Dynamic Calculations:
+     - Automatically calculate the remaining amount based on the entered price and paid amount when the payment status is Partial Paid.
+   - Feedback and Notifications:
+     - Provide clear feedback on form submission and actions taken (e.g., order creation success, deletion confirmation).
+
+# Additional Considerations
+- Ensure all data is sanitized and validated to prevent SQL injection and other security issues.
+- Optimize database queries for performance, especially when handling large amounts of data.
+- Test the dashboard and create order functionality thoroughly to ensure smooth operation and usability.
+
+Dashboard sample Html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Dashboard</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assests/css/style.css" rel="stylesheet"> <!-- Custom CSS -->
+</head>
+<body>
+    <?php include 'partials/header.php'; ?>
+
+    <div class="container mt-5">
+        <h1 class="mb-4">Order Dashboard</h1>
+
+        <!-- Filter Form -->
+        <form method="GET" action="index.php" class="mb-4">
+            <div class="form-row align-items-end">
+                <div class="col-md-3 mb-3">
+                    <label for="status">Status</label>
+                    <select class="form-control" id="status" name="status">
+                        <option value="">Select Status</option>
+                        <option value="paid">Paid</option>
+                        <option value="partial">Partial</option>
+                        <option value="unpaid">Unpaid</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="start_date">Start Date</label>
+                    <input type="date" class="form-control" id="start_date" name="start_date">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="end_date">End Date</label>
+                    <input type="date" class="form-control" id="end_date" name="end_date">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <button type="submit" class="btn btn-primary mt-4">Filter</button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Bulk Actions and Dropdown Menu -->
+        <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <button type="submit" name="bulk_delete" class="btn btn-danger">Delete Selected</button>
+                    <button type="submit" name="print_selected" class="btn btn-info">Print Selected</button>
+                </div>
+                <div class="dropdown ml-auto">
+                    <button class="dropbtn">Actions</button>
+                    <div class="dropdown-content">
+                        <a href="orders/create_order.php">Create Order</a>
+                        <a href="orders/export.php">Export to Excel</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Table -->
+        <form method="POST" action="index.php">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th><input type="checkbox" id="select-all"></th>
+                            <th>Order Number</th>
+                            <th>Customer Name</th>
+                            <th>Order Date</th>
+                            <th>Payment Status</th>
+                            <th>Total Amount</th>
+                            <th>Partial Payment</th>
+                            <th>Unpaid Amount</th>
+                            <th>Remaining Amount</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($orders as $order): ?>
+                            <tr>
+                                <td><input type="checkbox" name="order_ids[]" value="<?= $order['id'] ?>"></td>
+                                <td><?= htmlspecialchars($order['order_id']) ?></td>
+                                <td><?= htmlspecialchars($order['full_name']) ?></td>
+                                <td><?= htmlspecialchars($order['created_at']) ?></td>
+                                <td><?= htmlspecialchars($order['payment_status']) ?></td>
+                                <td>$<?= htmlspecialchars(number_format($order['total_amount'], 2)) ?></td>
+                                <td>$<?= htmlspecialchars(number_format($order['partial_payment'], 2)) ?></td>
+                                <td>$<?= htmlspecialchars(number_format($order['total_amount'] - $order['partial_payment'], 2)) ?></td>
+                                <td>$<?= htmlspecialchars(number_format($order['remaining_amount'], 2)) ?></td>
+                                <td>
+                                    <a href="orders/delete_order.php?id=<?= $order['id'] ?>" class="btn btn-danger btn-sm">Delete</a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Bulk Actions -->
+            <div class="mb-4">
+                <button type="submit" name="bulk_delete" class="btn btn-danger">Delete Selected</button>
+                <button type="submit" name="print_selected" class="btn btn-info">Print Selected</button>
+                <a href="orders/export.php" class="btn btn-success">Export to Excel</a>
+            </div>
+        </form>
+    </div>
+
+    <?php include 'partials/footer.php'; ?>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // JavaScript for Select All functionality
+        document.getElementById('select-all').addEventListener('click', function() {
+            var checkboxes = document.querySelectorAll('input[name="order_ids[]"]');
+            for (var checkbox of checkboxes) {
+                checkbox.checked = this.checked;
+            }
+        });
+    </script>
+</body>
+</html>
+
+________________________________________________________________________________________________
+
+
+
+
+
+order-dashboard/
+│
+├── assets/
+│   ├── css/
+│   │   └── styles.css          # Custom CSS styles
+│   ├── js/
+│   │   └── scripts.js          # Custom JavaScript
+│   └── images/
+│       └── logo.png            # Project logo or other images
+│
+├── config/
+│   ├── database.php            # Database connection configuration
+│   └── config.php              # General configuration settings
+│
+├── includes/
+│   ├── header.php              # Header HTML (navigation, branding)
+│   ├── footer.php              # Footer HTML (contact info, links)
+│   ├── functions.php           # Common functions (e.g., for calculations, validations)
+│   └── export_to_excel.php     # Script to export orders to Excel
+│
+├── pages/
+│   ├── index.php               # Dashboard main page
+│   ├── create_order.php        # Create Order page
+│   └── view_order.php          # Page to view detailed order 
+├── sql/
+│   ├── schema.sql              # SQL schema for database tables
+│   └── sample_data.sql         # Sample data for testing
+│
+├── .gitignore                  # Git ignore file
+├── composer.json               # Composer file (if using PHP libraries)
+└── README.md                   # Project documentation

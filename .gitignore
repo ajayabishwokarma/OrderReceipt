@@ -1,0 +1,40 @@
+# PHP specific
+/vendor/            # Composer dependencies
+/.vscode/           # VS Code settings
+/.idea/             # PHPStorm settings
+/.phpunit.result.cache # PHPUnit cache
+/.php_cs.cache      # PHP Coding Standards cache
+/.php_cs.dist.php   # PHP Coding Standards config
+/.php_cs.php        # PHP Coding Standards config
+
+# XAMPP / Local development
+/xampp/htdocs/      # XAMPP root directory (adjust path as needed)
+/*.log              # Log files
+*.log
+*.tmp
+*.swp
+*.swo
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Build output
+/dist/
+build/
+
+# Environment files
+.env                # Environment configuration file (e.g., API keys, database credentials)
+.env.local          # Local environment configuration
+.env.*              # Other environment configuration files
+
+# IDEs and editors
+*.sublime-workspace
+*.sublime-project
+*.vscode/
+.idea/
+*.iml
+
+# Composer
+composer.phar       # Composer executable (if present)
+composer.lock       # Composer lock file (include if you want to commit it)
