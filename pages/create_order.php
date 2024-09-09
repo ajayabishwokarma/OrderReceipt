@@ -108,10 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label for="phoneNumber">Phone Number</label>
                 <input type="text" class="form-control" id="phoneNumber" name="contact_information" placeholder="e.g. 9812345678" required>
             </div>
-            <div class="form-group">
-                <label for="city">City</label>
-                <input type="text" class="form-control" id="city" name="city" placeholder="e.g. Kathmandu" required>
-            </div>
+            
             <div class="form-group">
                 <label for="address">Address</label>
                 <input type="text" class="form-control" id="address" name="shipping_address" placeholder="e.g. Ward No. 5" required>
